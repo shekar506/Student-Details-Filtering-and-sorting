@@ -1,0 +1,3 @@
+SELECT Name, JoinDate
+FROM Employees
+WHERE JoinDate >= CURDATE() - INTERVAL 1 MONTH;
