@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            margin: 0 auto 20px auto;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 2px solid #3498db;
+            background-color: transparent;
+            color: #3498db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            width: 300px; /* Compact width for the filter form */
+            margin: 0 auto; /* Center the form */
+        }
+
+        form h2 {
+            margin-top: 0;
+            font-size: 16px; /* Smaller font size for form title */
+        }
+
+        input, select, button {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: calc(100% - 16px); /* Adjust width to fit smaller form */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Add a container for the table */
+        .table-container {
+            width: 80%; /* Adjust the width as per your preference */
+            max-width: 1200px; /* Optional: Limit the maximum width */
+            margin: 0 auto; /* Center the table container */
+            padding: 20px; /* Optional: Add padding for spacing */
+            background-color: #fff; /* Optional: White background for the table container */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better appearance */
+            border-radius: 8px; /* Optional: Rounded corners */
+        }
+
+        /* Adjust the table to fit inside the container */
+        table {
+            width: 100%; /* Make sure the table takes up the full width of the container */
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+
+        /* Filter buttons below the table */
+        .filter-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .filter-button, .clear-button {
+            padding: 5px 12px; /* Smaller padding for compact button */
+            font-size: 12px; /* Smaller font size */
+            border: 2px solid #3498db;
+            background-color: transparent;
+            color: #3498db;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 120px; /* Set a fixed width for controlled look */
+            text-align: center; /* Ensures text is centered within the button */
+        }
+
+        .filter-button:hover, .clear-button:hover {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Student Details Filtering and Sorting</h1>
+
+<div class="button-container">
+    <button id="addStudentButton">Add Student</button>
+</div>
+
+<form id="addStudentForm">
+    <h2>Add Student</h2>
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="number" id="englishMarks" placeholder="English Marks" required />
+    <input type="number" id="mathMarks" placeholder="Math Marks" required />
+    <input type="number" id="scienceMarks" placeholder="Science Marks" required />
+    <input type="number" id="socialScienceMarks" placeholder="Social Science Marks" required />
+    <button type="submit">Add Student</button>
+    <button type="button" class="cancel-button" id="cancelAddStudentForm">Cancel</button>
+</form>
+
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>English Marks</th>
+            <th>Math Marks</th>
+            <th>Science Marks</th>
+            <th>Social Science Marks</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="studentsTableBody"></tbody>
+    </table>
+</div>
+
+<div class="filter-buttons-container">
+    <button class="filter-button" id="filterStudentsButton">Filter Students</button>
+    <button class="clear-button" id="clearFilter">Clear Filter</button>
+</div>
+
+<form id="filterStudentsForm">
+    <h2>Filter Students</h2>
+    <select id="subject" required>
+        <option value="">Select Subject</option>
+        <option value="english">English</option>
+        <option value="maths">Maths</option>
+        <option value="science">Science</option>
+        <option value="socialScience">Social Science</option>
+    </select>
+    <select id="condition" required>
+        <option value="">Select Condition</option>
+        <option value="above">Above</option>
+        <option value="below">Below</option>
+        <option value="between">Between</option>
+    </select>
+    <input type="number" id="value1" placeholder="Value 1" required />
+    <input type="number" id="value2" placeholder="Value 2" class="hidden" />
+    <div>
+        <button type="submit">Filter</button>
+        <button type="button" class="cancel-button" id="cancelFilterForm">Cancel</button>
+    </div>
+</form>
+
+<script>
+    const BASE_URL = "http://localhost:8080/api/students";
+
+    // get all students
+    const fetchStudents = async () => {
+        const response = await fetch(BASE_URL);
+        const students = await response.json();
+        renderStudents(students);
+    };
+
+    // Render students in the table
+    const renderStudents = (students) => {
+        const tableBody = document.getElementById("studentsTableBody");
+        tableBody.innerHTML = "";
+        students.forEach((student) => {
+            const row = `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.englishMarks}</td>
+                    <td>${student.mathMarks}</td>
+                    <td>${student.scienceMarks}</td>
+                    <td>${student.socialScienceMarks}</td>
+                    <td>
+                        <button onclick="deleteStudent(${student.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    };
+
+    // Add new student
+    document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const student = {
+            name: document.getElementById("name").value,
+            englishMarks: parseInt(document.getElementById("englishMarks").value),
+            mathMarks: parseInt(document.getElementById("mathMarks").value),
+            scienceMarks: parseInt(document.getElementById("scienceMarks").value),
+            socialScienceMarks: parseInt(document.getElementById("socialScienceMarks").value),
+        };
+        await fetch(BASE_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(student),
+        });
+        e.target.reset();
+        fetchStudents();
+        document.getElementById("addStudentForm").style.display = "none";
+    });
+
+    // Filtering students
+    document.getElementById("filterStudentsForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const subject = document.getElementById("subject").value;
+        const condition = document.getElementById("condition").value;
+        const value1 = parseInt(document.getElementById("value1").value);
+        const value2 = condition === "between" ? parseInt(document.getElementById("value2").value) : null;
+
+        const params = new URLSearchParams({ subject, condition, value1 });
+        if (value2 !== null) params.append("value2", value2);
+
+        const response = await fetch(`${BASE_URL}/filter?${params.toString()}`);
+        const filteredStudents = await response.json();
+        renderStudents(filteredStudents);
+    });
+
+    document.getElementById("addStudentButton").addEventListener("click", () => {
+        document.getElementById("addStudentForm").style.display = "block";
+    });
+
+    document.getElementById("cancelAddStudentForm").addEventListener("click", () => {
+        document.getElementById("addStudentForm").style.display = "none";
+    });
+
+    document.getElementById("filterStudentsButton").addEventListener("click", () => {
+        document.getElementById("filterStudentsForm").style.display = "block";
+    });
+
+    document.getElementById("cancelFilterForm").addEventListener("click", () => {
+        document.getElementById("filterStudentsForm").style.display = "none";
+    });
+
+    document.getElementById("clearFilter").addEventListener("click", () => {
+        fetchStudents();
+    });
+
+    // Deleting a student
+    const deleteStudent = async (id) => {
+        await fetch(`${BASE_URL}/${id}`, {
+            method: "DELETE",
+        });
+        fetchStudents();
+    };
+
+    fetchStudents();
+</script>
+
+</body>
+</html>
